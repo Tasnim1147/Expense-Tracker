@@ -12,7 +12,7 @@ class Expense:
     category: str = field(default_factory=lambda: "N/A")
 
     def __str__(self):
-        return f"Expense {self.id} {self.amount} {self.description} {self.date.strftime("%d/%m/%Y")}"
+        return f"Expense {self.id} {self.amount} {self.description} incurred at {self.date}"
     
     def update(self, 
                attribute: str,
