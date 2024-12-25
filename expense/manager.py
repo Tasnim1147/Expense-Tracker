@@ -1,38 +1,88 @@
-from expense.expense import Expense
-
+import sys, os
+sys.path.append(os.path.abspath(os.curdir))
+from expense import Expense
+from datetime import date
+from display.tabulate import tabulate
 
 class ExpenseManager(object):
     def __init__(self):
-        self.expenses = []
-        self.count = 0
+        self.expenses: list[Expense] = []
+        self.count: int = 1
         self._restore_expenses()
 
     def add(self, 
             amount: int,
             description: str,
-            date: str = None,
+            date: date = None,
             category: str = None
-            ) -> None:
-        pass
+            ) -> bool:
+        if (amount < 0 and not description): return False
+        expense = Expense(id=self.count,
+                          amount=amount,
+                          description=description)
+        if category: expense.category = category
+        if date: expense.date = date 
+        self.expenses.append(expense)
+        self.count += 1
+        return True       
 
     def _restore_expenses(self): pass
 
     def delete(self,
                id: int
                ) -> bool:
-        pass
+        for idx, expense in enumerate(self.expenses):
+            if expense.id == id:
+                self.expenses.pop(idx)
+                return True
+        return False
 
     def view(self,
              id: int
              ) -> bool:
-        pass
+        expenses = list(filter(lambda expense: expense.id == id,
+                        self.expenses))
+        if expenses:
+            print(expenses[0])
+            return True
+        else:
+            return False
 
     def store(self,
               path: str="expenses.csv",
               ) -> bool:
         pass
 
+    def list(self) -> None:
+        tabulate(contents=list(map(
+            lambda expense: {
+                'ID': expense.id,
+                'Date': expense.date,
+                'Description': expense.description,
+                'Amount': "$" + str(expense.amount),
+            }, self.expenses
+        )))
+
     def cost(self,
              month: int = -1
-             ) -> bool:
-        pass
+             ) -> int:
+        year = date.today().year
+        if month != -1: 
+            if (not 1 <= month <= 12): return -1
+            return sum(list(filter(lambda expense: expense.date.month == month \
+                                and expense.date.year == year, self.expenses)))
+        else:
+            return sum(list(filter(lambda expense: expense.date.month == month, 
+                                   self.expenses)))
+        
+
+if __name__ == '__main__':
+    m = ExpenseManager()
+    print(m.add(10, "desc1"))
+    print(m.add(20, "desc2"))
+    print(m.view(1))
+    print(m.view(-1))
+    print(m.delete(1))
+    print(m.add(30, "desc3"))
+    m.list()
+    
