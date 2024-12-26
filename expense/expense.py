@@ -18,7 +18,11 @@ class Expense:
                attribute: str,
                value: Union[int, str]
                ) -> bool:
-        pass
+        if hasattr(self, attribute):
+            # Needs to check for the values and convert (date) into proper format
+            setattr(self, attribute, value)
+            return True
+        return False
 
 
 if __name__ == "__main__":

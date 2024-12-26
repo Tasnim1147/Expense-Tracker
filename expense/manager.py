@@ -78,6 +78,17 @@ class ExpenseManager(object):
             return sum(list(filter(lambda expense: expense.date.month == month, 
                                    self.expenses)))
         
+    def update(self,
+               id: int,
+               attribute: str,
+               value: any
+               ) -> int:
+        for expense in self.expenses:
+            if expense.id == id:
+                expense.update(attribute, value)
+                return id
+        return 0
+        
 
 if __name__ == '__main__':
     m = ExpenseManager()
