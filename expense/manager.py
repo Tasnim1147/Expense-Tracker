@@ -1,6 +1,5 @@
 import sys, os
-sys.path.append(os.path.abspath(os.curdir))
-from expense import Expense
+from expense.expense import Expense
 from datetime import date
 from display.tabulate import tabulate
 
