@@ -15,8 +15,8 @@ class ExpenseManager(object):
             description: str,
             date: date = None,
             category: str = None
-            ) -> bool:
-        if (amount < 0 and not description): return False
+            ) -> int:
+        if (amount < 0 and not description): return 0
         expense = Expense(id=self.count,
                           amount=amount,
                           description=description)
@@ -24,18 +24,18 @@ class ExpenseManager(object):
         if date: expense.date = date 
         self.expenses.append(expense)
         self.count += 1
-        return True       
+        return self.count - 1   
 
     def _restore_expenses(self): pass
 
     def delete(self,
                id: int
-               ) -> bool:
+               ) -> int:
         for idx, expense in enumerate(self.expenses):
             if expense.id == id:
                 self.expenses.pop(idx)
-                return True
-        return False
+                return id
+        return 0
 
     def view(self,
              id: int
@@ -44,9 +44,9 @@ class ExpenseManager(object):
                         self.expenses))
         if expenses:
             print(expenses[0])
-            return True
+            return id
         else:
-            return False
+            return 0
 
     def store(self,
               path: str="expenses.csv",
@@ -54,14 +54,17 @@ class ExpenseManager(object):
         pass
 
     def list(self) -> None:
-        tabulate(contents=list(map(
-            lambda expense: {
-                'ID': expense.id,
-                'Date': expense.date,
-                'Description': expense.description,
-                'Amount': "$" + str(expense.amount),
-            }, self.expenses
-        )))
+        if self.expenses:
+            tabulate(contents=list(map(
+                lambda expense: {
+                    'ID': expense.id,
+                    'Date': expense.date,
+                    'Description': expense.description,
+                    'Amount': "$" + str(expense.amount),
+                }, self.expenses
+            )))
+        else:
+            tabulate(headers=['ID', 'Date', 'Description', 'Amount'])
 
     def cost(self,
              month: int = -1
