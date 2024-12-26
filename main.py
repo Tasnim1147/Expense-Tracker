@@ -29,38 +29,82 @@ class ExpenseTracker(Cmd):
                                      type=int,
                                      required=True)
         
+        self.update_parser = ArgumentParser(
+                    prog='update',
+                    description='updates an existing expense',
+                    parents=[self.id_parser])
+        self.update_parser.add_argument('--description', 
+                                        nargs=1,
+                                        type=str)
+        self.update_parser.add_argument('--amount', 
+                                        nargs=1,
+                                        type=int)
+        self.update_parser.add_argument('--date', 
+                                        nargs=1,
+                                        type=str)
+        self.update_parser.add_argument('--category', 
+                                        nargs=1,
+                                        type=str)
+        
 
     def do_add(self,
                arg: str
                ) -> None:
         """add --description <description> --amount <amount>"""
+        try:
+            args = self.add_parser.parse_args(arg.split(' '))
+            expense_id = self.manager.add(args.description, args.amount)
+            if expense_id:
+                print(f"Expense added successfully (ID: {expense_id})")
+            else:
+                print(f"Failed to add expense")
+        except:
+            print(f"Provided parameters are invalid: {arg}")
 
-        pass
 
     def do_list(self,
                 arg: str
                 ) -> None:
-        pass
+        """list"""
+        self.manager.list()
 
-    """summary [--month <month> | '']"""
     def do_summary(self,
                    arg: str
                    ) -> None:
-        pass
+        """summary [--month <month> | '']"""
+        try:
+            args = self.month_parser.parse_args(arg.split(" "))
+            if not self.manager.cost(args.month):
+                print("Failed to list out expenses")
+        except:
+            print(f"Provided parameters are invalid: {arg}")
 
-    """delete --id <id>"""
     def do_delete(self, 
                   arg: str
                   ) -> None:
-        pass
+        """delete --id <id>"""
+        try:
+            args = self.id_parser.parse_args(arg.split(' '))
+            if not self.manager.delete(args.id):
+                print(f"Expense with ID({args.id}) doesn't exist")
+            else:
+                print(f"Expense deleted successfully (ID: {args.id})")
+        except:
+            print(f"Provided parameters are invalid: {arg}")
 
-    """update --id <id> [--description <description> |
-                                         --amount <amount> |
-                                         --date <date>]"""
+
     def do_upate(self,
                  arg: str
                  ) -> None:
-        pass
+        """update --id <id> [--description <description> |
+                                        --amount <amount> |
+                                        --date <date>]"""
+        try: 
+            args = self.update_parser.parse_args(arg.split(" "))
+            for attribute in ['description', 'amount', 'date', 'category']:
+                self.manager.update(args.id, attribute, args[attribute])
+        except:
+            print("Provided parameters are invalid: {arg}")
 
     def do_help(self, arg):
         return super().do_help(arg)
